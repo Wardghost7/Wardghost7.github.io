@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Merkatodo — Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F7F2E7;
+    --paper-raised: #FFFDF8;
+    --ink: #2B2320;
+    --ink-soft: #6B6153;
+    --green: #2F5233;
+    --green-deep: #23401F;
+    --green-tint: #E4EDE1;
+    --mustard: #D9A441;
+    --mustard-dark: #B9862E;
+    --debt: #A84B33;
+    --debt-tint: #F3E1D9;
+    --border: #E4DCC8;
+    --shadow: rgba(43, 35, 32, 0.10);
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Work Sans", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #1E1B16;
+      --paper-raised: #2A251D;
+      --ink: #F1EAD9;
+      --ink-soft: #B8AC96;
+      --green: #6FA87A;
+      --green-deep: #8CC397;
+      --green-tint: #223028;
+      --mustard: #E8B85B;
+      --mustard-dark: #F0C878;
+      --debt: #E08066;
+      --debt-tint: #3A2620;
+      --border: #3A342A;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1E1B16;
+    --paper-raised: #2A251D;
+    --ink: #F1EAD9;
+    --ink-soft: #B8AC96;
+    --green: #6FA87A;
+    --green-deep: #8CC397;
+    --green-tint: #223028;
+    --mustard: #E8B85B;
+    --mustard-dark: #F0C878;
+    --debt: #E08066;
+    --debt-tint: #3A2620;
+    --border: #3A342A;
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    display: flex;
+    justify-content: center;
+    min-height: 100%;
+  }
+
+  .phone {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100dvh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+
+  header.top {
+    background: var(--green);
+    color: #FBF8F0;
+    padding: 18px 20px 16px;
+    padding-top: calc(18px + env(safe-area-inset-top, 0px));
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  header.top .brand {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.2px;
+  }
+  header.top .tag {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
+  main {
+    flex: 1;
+    padding: 18px 18px 96px;
+    overflow-y: auto;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  h2.section-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 4px 0 14px;
+    color: var(--ink);
+  }
+
+  /* ---- Catálogo ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .product {
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .product .icon {
+    font-size: 1.6rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-tint);
+    border-radius: 10px;
+  }
+  .product .name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+  .product .price {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .add-btn {
+    margin-top: 4px;
+    border: none;
+    background: var(--mustard);
+    color: #2B2000;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 9px 10px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .add-btn:active { background: var(--mustard-dark); }
+  .add-btn.in-cart { background: var(--green); color: #FBF8F0; }
+
+  /* ---- Pedido ---- */
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+  .cart-item .icon {
+    font-size: 1.3rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--green-tint);
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  .cart-item .info { flex: 1; min-width: 0; }
+  .cart-item .info .name { font-weight: 600; font-size: 0.92rem; }
+  .cart-item .info .unit { color: var(--ink-soft); font-size: 0.8rem; }
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qty-control button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .qty-control .qty { min-width: 16px; text-align: center; font-weight: 600; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--ink-soft);
+  }
+  .empty-state .glyph { font-size: 2rem; margin-bottom: 8px; }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 2px;
+    font-size: 0.92rem;
+  }
+  .summary-row.total {
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 12px;
+  }
+
+  .primary-btn {
+    width: 100%;
+    border: none;
+    background: var(--green);
+    color: #FBF8F0;
+    font-weight: 600;
+    font-size: 0.98rem;
+    padding: 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: var(--font-body);
+  }
+  .primary-btn:active { background: var(--green-deep); }
+  .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .confirm-note {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    margin-top: 10px;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 96px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green-deep);
+    color: #FBF8F0;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    max-width: 88%;
+    text-align: center;
+    z-index: 20;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ---- Fiado ---- */
+  .balance-card {
+    background: var(--green);
+    color: #FBF8F0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 18px;
+  }
+  .balance-card .label {
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+  .balance-card .amount {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  .balance-card .who {
+    font-size: 0.8rem;
+    opacity: 0.75;
+    margin-top: 10px;
+  }
+
+  .ledger-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ledger-item:last-child { border-bottom: none; }
+  .ledger-item .concept { font-weight: 500; font-size: 0.9rem; }
+  .ledger-item .date { color: var(--ink-soft); font-size: 0.78rem; margin-top: 1px; }
+  .ledger-item .amount { font-weight: 600; font-size: 0.92rem; }
+  .ledger-item .amount.debt { color: var(--debt); }
+  .ledger-item .amount.payment { color: var(--green); }
+  :root:not([data-theme="light"]) .ledger-item .amount.payment { color: var(--green-deep); }
+
+  .secondary-btn {
+    width: 100%;
+    border: 1px solid var(--green);
+    background: transparent;
+    color: var(--green);
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 13px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: var(--font-body);
+  }
+
+  .abono-form {
+    background: var(--paper-raised);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+  }
+  .abono-form label {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .abono-form input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1rem;
+    font-family: var(--font-body);
+  }
+  .abono-form input:focus-visible,
+  .add-btn:focus-visible,
+  .primary-btn:focus-visible,
+  .secondary-btn:focus-visible,
+  .qty-control button:focus-visible,
+  .tab:focus-visible {
+    outline: 2px solid var(--mustard-dark);
+    outline-offset: 2px;
+  }
+
+  /* ---- Bottom nav ---- */
+  nav.bottom {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    background: var(--paper-raised);
+    border-top: 1px solid var(--border);
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 4px;
+    color: var(--ink-soft);
+    font-family: var(--font-body);
+    cursor: pointer;
+    position: relative;
+    border-radius: 10px;
+  }
+  .tab .glyph { font-size: 1.25rem; }
+  .tab .label { font-size: 0.72rem; font-weight: 600; }
+  .tab.active { color: var(--green); }
+  :root:not([data-theme="light"]) .tab.active { color: var(--green-deep); }
+  .badge {
+    position: absolute;
+    top: 2px;
+    right: 26%;
+    background: var(--debt);
+    color: #FFF6F0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <header class="top">
+      <div class="brand">Merkatodo</div>
+      <div class="tag" id="header-tag">Tu tienda de confianza, ahora en el celular</div>
+    </header>
+
+    <main>
+      <!-- CATÁLOGO -->
+      <section class="screen active" id="screen-catalogo">
+        <h2 class="section-title">Catálogo de productos</h2>
+        <div class="grid" id="product-grid"></div>
+      </section>
+
+      <!-- PEDIDO -->
+      <section class="screen" id="screen-pedido">
+        <h2 class="section-title">Mi pedido</h2>
+        <div id="cart-list"></div>
+        <div id="cart-summary"></div>
+      </section>
+
+      <!-- FIADO -->
+      <section class="screen" id="screen-fiado">
+        <h2 class="section-title">Mi fiado</h2>
+        <div class="balance-card">
+          <div class="label">Saldo actual</div>
+          <div class="amount" id="saldo-amount">$0</div>
+          <div class="who">Cliente: Don Carlos Pérez</div>
+        </div>
+        <div id="ledger-list"></div>
+        <button class="secondary-btn" id="btn-abono">Registrar abono</button>
+        <div class="abono-form" id="abono-form" style="display:none;">
+          <label for="abono-input">¿Cuánto vas a abonar?</label>
+          <input type="number" id="abono-input" placeholder="Ej: 10000" inputmode="numeric">
+          <button class="primary-btn" id="btn-guardar-abono">Guardar abono</button>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom">
+      <button class="tab active" data-screen="catalogo">
+        <span class="glyph">🧺</span>
+        <span class="label">Catálogo</span>
+      </button>
+      <button class="tab" data-screen="pedido" style="position:relative;">
+        <span class="glyph">🧾</span>
+        <span class="label">Mi pedido</span>
+        <span class="badge" id="cart-badge" style="display:none;">0</span>
+      </button>
+      <button class="tab" data-screen="fiado">
+        <span class="glyph">📒</span>
+        <span class="label">Mi fiado</span>
+      </button>
+    </nav>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+<script>
+  const products = [
+    { id: 1, name: "Café molido 500g", price: 8000, icon: "☕" },
+    { id: 2, name: "Panela x 6 und", price: 3500, icon: "🍯" },
+    { id: 3, name: "Huevos AA x 30", price: 14000, icon: "🥚" },
+    { id: 4, name: "Arroz 500g", price: 2800, icon: "🍚" },
+    { id: 5, name: "Aceite 1L", price: 9500, icon: "🫙" },
+    { id: 6, name: "Jabón en barra", price: 2200, icon: "🧼" },
+    { id: 7, name: "Azúcar 1kg", price: 3200, icon: "🧂" },
+    { id: 8, name: "Arepas x 10", price: 5000, icon: "🫓" },
+  ];
+
+  const cart = {};
+
+  let ledger = [
+    { date: "02 sep 2026", concept: "Fiado — mercado semanal", amount: 32000, type: "debt" },
+    { date: "10 sep 2026", concept: "Abono", amount: -12000, type: "payment" },
+    { date: "18 sep 2026", concept: "Fiado — mercado semanal", amount: 25000, type: "debt" },
+  ];
+
+  const money = (n) => "$" + n.toLocaleString("es-CO");
+
+  function renderCatalog() {
+    const grid = document.getElementById("product-grid");
+    grid.innerHTML = "";
+    products.forEach((p) => {
+      const qty = cart[p.id] || 0;
+      const card = document.createElement("div");
+      card.className = "product";
+      card.innerHTML = `
+        <div class="icon">${p.icon}</div>
+        <div class="name">${p.name}</div>
+        <div class="price">${money(p.price)}</div>
+        <button class="add-btn ${qty > 0 ? "in-cart" : ""}" data-id="${p.id}">
+          ${qty > 0 ? `En el pedido (${qty})` : "Agregar"}
+        </button>
+      `;
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll(".add-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.dataset.id);
+        cart[id] = (cart[id] || 0) + 1;
+        const p = products.find((x) => x.id === id);
+        showToast(`${p.name} agregado al pedido`);
+        renderCatalog();
+        renderCart();
+        updateBadge();
+      });
+    });
+  }
+
+  function renderCart() {
+    const list = document.getElementById("cart-list");
+    const summary = document.getElementById("cart-summary");
+    const ids = Object.keys(cart).filter((id) => cart[id] > 0);
+
+    if (ids.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="glyph">🧺</div>
+          <div>Todavía no has agregado productos.<br>Ve al catálogo y elige lo que necesitas.</div>
+        </div>`;
+      summary.innerHTML = "";
+      return;
+    }
+
+    list.innerHTML = "";
+    let total = 0;
+    ids.forEach((id) => {
+      const p = products.find((x) => x.id === Number(id));
+      const qty = cart[id];
+      total += p.price * qty;
+      const row = document.createElement("div");
+      row.className = "cart-item";
+      row.innerHTML = `
+        <div class="icon">${p.icon}</div>
+        <div class="info">
+          <div class="name">${p.name}</div>
+          <div class="unit">${money(p.price)} c/u</div>
+        </div>
+        <div class="qty-control">
+          <button data-id="${id}" data-action="less" aria-label="Quitar uno">−</button>
+          <span class="qty">${qty}</span>
+          <button data-id="${id}" data-action="more" aria-label="Agregar uno">+</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+
+    summary.innerHTML = `
+      <div class="summary-row total">
+        <span>Total del pedido</span>
+        <span>${money(total)}</span>
+      </div>
+      <button class="primary-btn" id="btn-confirmar">Confirmar pedido</button>
+      <div class="confirm-note">Se le avisará a la tienda para alistar tu pedido.</div>
+    `;
+
+    list.querySelectorAll("button[data-action]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        if (btn.dataset.action === "more") cart[id] += 1;
+        if (btn.dataset.action === "less") cart[id] = Math.max(0, cart[id] - 1);
+        renderCart();
+        renderCatalog();
+        updateBadge();
+      });
+    });
+
+    document.getElementById("btn-confirmar").addEventListener("click", () => {
+      const orderNum = Math.floor(1000 + Math.random() * 9000);
+      showToast(`Pedido #${orderNum} enviado a la tienda ✅`);
+      ids.forEach((id) => (cart[id] = 0));
+      renderCart();
+      renderCatalog();
+      updateBadge();
+    });
+  }
+
+  function updateBadge() {
+    const count = Object.values(cart).reduce((a, b) => a + b, 0);
+    const badge = document.getElementById("cart-badge");
+    if (count > 0) {
+      badge.style.display = "flex";
+      badge.textContent = count;
+    } else {
+      badge.style.display = "none";
+    }
+  }
+
+  function renderLedger() {
+    const saldo = ledger.reduce((sum, item) => sum + item.amount, 0);
+    document.getElementById("saldo-amount").textContent = money(saldo);
+
+    const list = document.getElementById("ledger-list");
+    list.innerHTML = "";
+    [...ledger].reverse().forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "ledger-item";
+      const sign = item.type === "debt" ? "+" : "−";
+      row.innerHTML = `
+        <div>
+          <div class="concept">${item.concept}</div>
+          <div class="date">${item.date}</div>
+        </div>
+        <div class="amount ${item.type}">${sign} ${money(Math.abs(item.amount))}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById("btn-abono").addEventListener("click", () => {
+    const form = document.getElementById("abono-form");
+    form.style.display = form.style.display === "none" ? "block" : "none";
+  });
+
+  document.getElementById("btn-guardar-abono").addEventListener("click", () => {
+    const input = document.getElementById("abono-input");
+    const value = Number(input.value);
+    if (!value || value <= 0) {
+      showToast("Escribe un monto válido");
+      return;
+    }
+    ledger.push({
+      date: new Date().toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }),
+      concept: "Abono",
+      amount: -value,
+      type: "payment",
+    });
+    input.value = "";
+    document.getElementById("abono-form").style.display = "none";
+    showToast("Abono registrado. ¡Gracias!");
+    renderLedger();
+  });
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+
+  // ---- Tabs ----
+  const tags = {
+    catalogo: "Tu tienda de confianza, ahora en el celular",
+    pedido: "Revisa y confirma lo que vas a llevar",
+    fiado: "Lleva el control claro de tus cuentas",
+  };
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+      document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+      tab.classList.add("active");
+      const screen = tab.dataset.screen;
+      document.getElementById("screen-" + screen).classList.add("active");
+      document.getElementById("header-tag").textContent = tags[screen];
+    });
+  });
+
+  renderCatalog();
+  renderCart();
+  renderLedger();
+</script>
+</body>
+</html>
